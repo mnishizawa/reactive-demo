@@ -7,6 +7,7 @@ import data._
 import actors.{WatchProject, AddTime, ProjectActor}
 import play.api.libs.json.JsValue
 import play.api.libs.concurrent._
+import play.api.Logger
 
 object Application extends Controller {
 
@@ -36,7 +37,7 @@ object Application extends Controller {
    * Create an actor to manage observation of time related to the project
    * @return
    */
-  def observeProject(project:String) = WebSocket.acceptWithActor[String,JsValue] { request => out =>
-    ProjectActor.props(out, project, data)
+  def observeProject() = WebSocket.acceptWithActor[String,JsValue] { request => out =>
+    ProjectActor.props(out, data)
   }
 }
