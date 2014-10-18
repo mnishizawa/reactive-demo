@@ -1,7 +1,12 @@
 package controllers
 
+
+import play.api.Play.current
 import play.api.mvc._
 import data._
+import actors.{WatchProject, AddTime, ProjectActor}
+import play.api.libs.json.JsValue
+import play.api.libs.concurrent._
 
 object Application extends Controller {
 
@@ -20,6 +25,7 @@ object Application extends Controller {
       request.body.validate[TimeEntry].asOpt match {
         case Some(t) => {
           data.insert(t.projectName, t)
+          Akka.system.actorSelection("/user/*") ! WatchProject(t.projectName)
           Ok("Time entry saved")
         }
         case None => BadRequest
@@ -30,5 +36,7 @@ object Application extends Controller {
    * Create an actor to manage observation of time related to the project
    * @return
    */
-  def observeProject = TODO
+  def observeProject(project:String) = WebSocket.acceptWithActor[String,JsValue] { request => out =>
+    ProjectActor.props(out, project, data)
+  }
 }

@@ -20,6 +20,7 @@ package object data {
       (JsPath \ "name").write[String] and
       (JsPath \ "project_name").write[String] and
       (JsPath \ "hours").write[Double] and
-      (JsPath \ "entryDate").wrie[DateTime]
+      (JsPath \ "entryDate").write[DateTime]
     )(unlift(TimeEntry.unapply))
+
 }
