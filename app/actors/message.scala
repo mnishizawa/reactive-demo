@@ -1,7 +1,5 @@
 package actors
 
-import data.TimeEntry
-
 sealed trait EntryEvent
-case class AddTime(time: TimeEntry)
-case class WatchProject(projectName: String)
+case class UpdateProject(name: String) extends EntryEvent
+case class NotifyAll(name: String) extends EntryEvent

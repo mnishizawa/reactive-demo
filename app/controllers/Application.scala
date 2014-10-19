@@ -4,14 +4,17 @@ package controllers
 import play.api.Play.current
 import play.api.mvc._
 import data._
-import actors.{WatchProject, AddTime, ProjectActor}
-import play.api.libs.json.JsValue
-import play.api.libs.concurrent._
-import play.api.Logger
+import actors._
+import play.api.libs.json.{Json, JsValue}
+import scala.concurrent.ExecutionContext.Implicits.global
+import akka.actor.{PoisonPill, ActorSystem}
+import play.api.libs.concurrent.Akka
 
 object Application extends Controller {
 
   val data = new Datastore[TimeEntry]
+
+  val actorSystem = ActorSystem()
 
   def index = Action {
     Ok(views.html.Index())
@@ -26,11 +29,22 @@ object Application extends Controller {
       request.body.validate[TimeEntry].asOpt match {
         case Some(t) => {
           data.insert(t.projectName, t)
-          Akka.system.actorSelection("/user/*") ! WatchProject(t.projectName)
+          val actor = Akka.system.actorOf(ProjectActor.props(null, data))
+          actor ! NotifyAll(t.projectName)
+
+          //Thread.sleep(1000)
+          //actor ! PoisonPill
+
           Ok("Time entry saved")
         }
         case None => BadRequest
       }
+  }
+
+  def getProjectTime(projectName: String) = Action.async {
+    data.find(projectName) map { ts =>
+      Ok(Json.toJson(ts))
+    }
   }
 
   /**
