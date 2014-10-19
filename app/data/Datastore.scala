@@ -1,6 +1,6 @@
 package data
 
-import scala.collection.mutable._
+import scala.collection._
 import scala.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
  */
 class Datastore[A] {
 
-  val data = new HashMap[String, Set[A]] with MultiMap[String,A]
+  val data = new mutable.HashMap[String, mutable.Set[A]] with mutable.MultiMap[String,A]
 
   def find(key:String):Future[Set[A]] = future {
       data.get(key).getOrElse(Set.empty)
@@ -21,5 +21,7 @@ class Datastore[A] {
   def insert(key: String, value: A ) = {
     data.addBinding(key, value)
   }
+
+  def listKeys():Future[Set[String]] = future ( data.keySet )
 
 }

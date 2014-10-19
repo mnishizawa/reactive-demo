@@ -29,16 +29,18 @@ object Application extends Controller {
       request.body.validate[TimeEntry].asOpt match {
         case Some(t) => {
           data.insert(t.projectName, t)
-          val actor = Akka.system.actorOf(ProjectActor.props(null, data))
-          actor ! NotifyAll(t.projectName)
-
-          //Thread.sleep(1000)
-          //actor ! PoisonPill
+          //val actor = Akka.system.actorOf(ProjectActor.props(null, data))
+          //actor ! NotifyAll(t.projectName)
+          Akka.system.actorSelection("/system/websockets/*/handler") ! UpdateProject(t.projectName)
 
           Ok("Time entry saved")
         }
         case None => BadRequest
       }
+  }
+
+  def listProjects() = Action.async {
+    data.listKeys() map { o => Ok(Json.toJson(o)) }
   }
 
   def getProjectTime(projectName: String) = Action.async {
