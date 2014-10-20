@@ -4,7 +4,16 @@
 
 
 # Home page
-GET        /                                 controllers.Application.index()
+GET        /                         controllers.Application.index()
+
+# API
+PUT        /time                     controllers.Application.addTime
+GET        /project/:pid             controllers.Application.getProjectTime(pid)
+GET        /project                  controllers.Application.listProjects()
+
+# WebSocket
+GET        /observe                  controllers.Application.observeProject
 
 # Map the JS resource paths
-GET        /*file                            controllers.Assets.versioned(path="/public", file: Asset)
+GET        /*file                    controllers.Assets.versioned(path="/public", file: Asset)
+
