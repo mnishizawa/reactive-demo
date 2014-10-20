@@ -7,47 +7,38 @@ import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import scala.concurrent.Future
 
+sealed trait EntryEvent
+case class UpdateProject(name: String) extends EntryEvent
+
 object ProjectActor {
   def props(out: ActorRef, datastoreRef: Datastore[TimeEntry]) = Props(new ProjectActor(out, datastoreRef))
 }
 
-object Refs {
-  var socketRef:Option[ActorRef] = None
-}
+class ProjectActor(out: ActorRef, datastoreRef: Datastore[TimeEntry]) extends Actor {
 
-class ProjectActor(out: ActorRef,  datastoreRef: Datastore[TimeEntry]) extends Actor {
-
-  var project:Option[String] = None
+  var project: Option[String] = None
 
   def receive = {
-    case NotifyAll(pName) => context.system.actorSelection("/system/websockets/*/handler") ! UpdateProject(pName)
-    case UpdateProject(pName) => {
-      project match {
-        case Some(p) => {
-          if(p.equalsIgnoreCase(pName)) {
-              getDataAsJson(pName) map { data =>
-                out ! data
-              }
-          }
-        }
-        case None => Logger.debug("Not watching %s, ignoring message update".format(pName))
+    case UpdateProject(pName) => project match {
+      case Some(p) => if (p.equalsIgnoreCase(pName)) {
+        getDataAsJson(pName) map { data => out ! data }
       }
 
+      case None => Logger.debug("Not watching %s, ignoring message update".format(pName))
     }
 
-    case s:String =>  datastoreRef.find(s) map { pf =>
-        if(!pf.isEmpty) {
+    case s: String => datastoreRef.find(s) map { pf =>
+        if (!pf.isEmpty) {
           project = Some(s)
-          Logger.debug("value of project is %s watched by ref %s".format(project.get, self.path ))
-          getDataAsJson(s) map { data =>
-            out ! data
+          Logger.debug("value of project is %s watched by ref %s".format(project.get, self.path))
+          getDataAsJson(s) map {
+            data =>
+              out ! data
           }
         } else {
-          Logger.error("I don't know what %s is".format(s))
           out ! "I don't know what %s is".format(s)
         }
-      }
-
+    }
   }
 
   def getDataAsJson(projectName: String): Future[JsValue] =

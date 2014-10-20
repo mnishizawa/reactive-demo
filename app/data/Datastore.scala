@@ -13,15 +13,10 @@ class Datastore[A] {
 
   val data = new mutable.HashMap[String, mutable.Set[A]] with mutable.MultiMap[String,A]
 
-  def find(key:String):Future[Set[A]] = future {
-      data.get(key).getOrElse(Set.empty)
-  }
+  def find(key:String):Future[Set[A]] = future ( data.get(key).getOrElse(Set.empty) )
 
+  def insert(key: String, value: A )  = data.addBinding(key, value)
 
-  def insert(key: String, value: A ) = {
-    data.addBinding(key, value)
-  }
-
-  def listKeys():Future[Set[String]] = future ( data.keySet )
+  def listKeys():Future[Set[String]]  = future ( data.keySet )
 
 }

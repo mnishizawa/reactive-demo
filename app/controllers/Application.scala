@@ -41,6 +41,13 @@ object Application extends Controller {
     data.listKeys() map { o => Ok(Json.toJson(o)) }
   }
 
+
+  /**
+   * Static REST access to the time for the named project.
+   *
+   * @param projectName
+   * @return
+   */
   def getProjectTime(projectName: String) = Action.async {
     data.find(projectName) map { ts =>
       Ok(Json.toJson(ts))
