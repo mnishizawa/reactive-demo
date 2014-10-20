@@ -9,7 +9,7 @@ GET        /                         controllers.Application.index()
 #API
 PUT        /time                     controllers.Application.addTime
 GET        /observe                  controllers.Application.observeProject
-GET        /project/:pid        controllers.Application.getProjectTime(pid)
+GET        /project/:pid             controllers.Application.getProjectTime(pid)
 GET        /project                  controllers.Application.listProjects()
 
 # Map the JS resource paths

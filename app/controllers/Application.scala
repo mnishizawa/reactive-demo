@@ -29,8 +29,6 @@ object Application extends Controller {
       request.body.validate[TimeEntry].asOpt match {
         case Some(t) => {
           data.insert(t.projectName, t)
-          //val actor = Akka.system.actorOf(ProjectActor.props(null, data))
-          //actor ! NotifyAll(t.projectName)
           Akka.system.actorSelection("/system/websockets/*/handler") ! UpdateProject(t.projectName)
 
           Ok("Time entry saved")

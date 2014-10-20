@@ -4,7 +4,8 @@ import akka.actor.{Actor, Props, ActorRef}
 import data._
 import scala.concurrent.ExecutionContext.Implicits.global
 import play.api.Logger
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
+import scala.concurrent.Future
 
 object ProjectActor {
   def props(out: ActorRef, datastoreRef: Datastore[TimeEntry]) = Props(new ProjectActor(out, datastoreRef))
@@ -24,10 +25,9 @@ class ProjectActor(out: ActorRef,  datastoreRef: Datastore[TimeEntry]) extends A
       project match {
         case Some(p) => {
           if(p.equalsIgnoreCase(pName)) {
-            datastoreRef.find(pName).map { px =>
-              val jsonResponse = Json.toJson(px)
-              out ! jsonResponse
-            }
+              getDataAsJson(pName) map { data =>
+                out ! data
+              }
           }
         }
         case None => Logger.debug("Not watching %s, ignoring message update".format(pName))
@@ -38,8 +38,10 @@ class ProjectActor(out: ActorRef,  datastoreRef: Datastore[TimeEntry]) extends A
     case s:String =>  datastoreRef.find(s) map { pf =>
         if(!pf.isEmpty) {
           project = Some(s)
-          out ! "Now watching " + s
           Logger.debug("value of project is %s watched by ref %s".format(project.get, self.path ))
+          getDataAsJson(s) map { data =>
+            out ! data
+          }
         } else {
           Logger.error("I don't know what %s is".format(s))
           out ! "I don't know what %s is".format(s)
@@ -47,6 +49,10 @@ class ProjectActor(out: ActorRef,  datastoreRef: Datastore[TimeEntry]) extends A
       }
 
   }
+
+  def getDataAsJson(projectName: String): Future[JsValue] =
+    datastoreRef.find(projectName).map { px => Json.toJson(px) }
+
 
   override def postStop() {
     Logger.warn("Socket no longer accepting events, shutting down actor " + self.path)
