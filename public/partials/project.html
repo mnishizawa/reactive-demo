@@ -1,0 +1,9 @@
+<h1>Project: {{project.name}}</h1>
+
+<h3>Time Entries:</h3>
+<ul>
+    <li ng-repeat="entry in project.timeEntries">
+        {{entry.name}} worked for {{entry.hours}} hours on {{entry.entryDate | date:'shortDate'}}
+    </li>
+</ul>
+<p>Total amount of hours worked: {{project.timeEntries | sumProjectHours}}</p>

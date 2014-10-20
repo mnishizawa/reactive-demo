@@ -1,0 +1,8 @@
+<h1>Projects</h1>
+
+<p ng-show="projects.list.length == 0">No projects found!</p>
+<ul>
+    <li ng-repeat="project in projects.list">
+        <a ng-href="#/projects/{{project}}">{{project}}</a>
+    </li>
+</ul>

@@ -1,0 +1,22 @@
+<h1>Time Entry</h1>
+
+<form class="form" action="" method="post">
+    <div class="form-group">
+        <label for="fld-name">Name:</label>
+        <input id="fld-name" class="form-control" ng-model="timeEntry.entry.name" />
+    </div>
+    <div class="form-group">
+        <label for="fld-date">Date:</label>
+        <input type="date" class="form-control" id="fld-date" ng-model="timeEntry.entry._entryDate" />
+        <small>({{timeEntry.date | date:'shortDate'}})</small>
+    </div>
+    <div class="form-group">
+        <label for="fld-hours">Hours:</label>
+        <input type="number" id="fld-hours" class="form-control" ng-model="timeEntry.entry.hours" />
+    </div>
+    <div class="form-group">
+        <label for="fld-project-name">Project Name:</label>
+        <input class="form-control" id="fld-project-name" ng-model="timeEntry.entry.project_name" />
+    </div>
+    <button class="btn btn-primary" ng-click="timeEntry.save()">Submit!</button>
+</form>
